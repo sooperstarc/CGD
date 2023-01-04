@@ -120,7 +120,7 @@ class MPerClassSampler(Sampler):
     def __iter__(self):
         for _ in range(self.__len__()):
             labels_in_batch = set()
-            inds = np.array([], dtype=np.int)
+            inds = np.array([], dtype=int)
 
             while inds.shape[0] < self.batch_size:
                 sample_label = np.random.choice(self.labels_unique)
