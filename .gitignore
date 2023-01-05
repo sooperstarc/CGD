@@ -2,3 +2,4 @@ data
 notebook
 results
 __pycache__
+.vscode
