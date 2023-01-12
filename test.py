@@ -41,6 +41,7 @@ if __name__ == '__main__':
         shutil.rmtree(result_path)
     os.mkdir(result_path)
     query_image.save('{}/query_img.jpg'.format(result_path))
+    print("number \t image_path \t\t\t\t distance")
     for num, index in enumerate(idx):
         retrieval_image = Image.open(gallery_images[index.item()]).convert('RGB') \
             .resize((224, 224), resample=Image.BILINEAR)
@@ -53,3 +54,4 @@ if __name__ == '__main__':
         else:
             draw.rectangle((0, 0, 223, 223), outline='red', width=8)
         retrieval_image.save('{}/retrieval_img_{}_{}.jpg'.format(result_path, num + 1, '%.4f' % retrieval_dist))
+        print("{} \t {} \t {}".format(num + 1, gallery_images[index.item()], '%.4f' % retrieval_dist))

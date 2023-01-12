@@ -1,5 +1,6 @@
+__pycache__
+.venv
+.vscode
 data
 notebook
 results
-__pycache__
-.vscode
