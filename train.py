@@ -104,16 +104,16 @@ if __name__ == '__main__':
     train_data_loader = DataLoader(train_data_set, batch_sampler=train_sample, num_workers=8)
 
     # 기존 코드
-    # test_data_set = ImageReader(data_path, data_name, 'query' if data_name == 'isc' else 'test', crop_type)
-    # test_data_loader = DataLoader(test_data_set, batch_size, shuffle=False, num_workers=8)
-    # eval_dict = {'test': {'data_loader': test_data_loader}}
-    
-    # 수정 코드
-    custom_data_path = 'C:/Users/kkang/CGD/data'
-    custom_data_name = 'custom'
-    test_data_set = ImageReader(custom_data_path, custom_data_name, 'query' if data_name == 'isc' else 'test', crop_type)
+    test_data_set = ImageReader(data_path, data_name, 'query' if data_name == 'isc' else 'test', crop_type)
     test_data_loader = DataLoader(test_data_set, batch_size, shuffle=False, num_workers=8)
     eval_dict = {'test': {'data_loader': test_data_loader}}
+    
+    # 수정 코드
+    # custom_data_path = '/home/yoo/works/CGD'
+    # custom_data_name = 'custom'
+    # test_data_set = ImageReader(custom_data_path, custom_data_name, 'query' if data_name == 'isc' else 'test', crop_type)
+    # test_data_loader = DataLoader(test_data_set, batch_size, shuffle=False, num_workers=8)
+    # eval_dict = {'test': {'data_loader': test_data_loader}}
 
     if data_name == 'isc':
         gallery_data_set = ImageReader(data_path, data_name, 'gallery', crop_type)

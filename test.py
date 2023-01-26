@@ -18,7 +18,7 @@ if __name__ == '__main__':
     query_img_name, data_base_name, retrieval_num = opt.query_img_name, opt.data_base, opt.retrieval_num
     data_name = data_base_name.split('_')[0]
 
-    data_base = torch.load('results/{}'.format(data_base_name))
+    data_base = torch.load('{}'.format(data_base_name))
 
     if query_img_name not in data_base['test_images']:
         raise FileNotFoundError('{} not found'.format(query_img_name))
