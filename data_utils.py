@@ -107,7 +107,7 @@ def process_custom_data(data_path):
         for index, line in enumerate(open('{}/{}.txt'.format(data_path, data_type), 'r', encoding='utf-8')):
             if index != 0:
                 _, label, _, img_name = line.split()
-                img = Image.open('{}/{}'.format(data_path, img_name)).convert('RGB')
+                img = Image.open('{}'.format(img_name)).convert('RGB')
                 save_name = '{}/uncropped/{}'.format(data_path, os.path.basename(img_name))
                 img.save(save_name)
                 if label in image_list:
