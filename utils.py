@@ -7,6 +7,8 @@ from torch.utils.data import Dataset
 from torch.utils.data.sampler import Sampler
 from torchvision import transforms
 
+import faiss
+
 
 class ImageReader(Dataset):
 
@@ -42,15 +44,23 @@ def recall(feature_vectors, feature_labels, rank, gallery_vectors=None, gallery_
     feature_labels = torch.tensor(feature_labels, device=feature_vectors.device)
     gallery_vectors = feature_vectors if gallery_vectors is None else gallery_vectors
 
-    dist_matrix = torch.cdist(feature_vectors.unsqueeze(0), gallery_vectors.unsqueeze(0)).squeeze(0)
-
-    if gallery_labels is None:
-        dist_matrix.fill_diagonal_(float('inf'))
-        gallery_labels = feature_labels
-    else:
-        gallery_labels = torch.tensor(gallery_labels, device=feature_vectors.device)
-
-    idx = dist_matrix.topk(k=rank[-1], dim=-1, largest=False)[1]
+    # 기존 코드
+    # dist_matrix = torch.cdist(feature_vectors.unsqueeze(0), gallery_vectors.unsqueeze(0)).squeeze(0)
+    # if gallery_labels is None:
+    #     dist_matrix.fill_diagonal_(float('inf'))
+    #     gallery_labels = feature_labels
+    # else:
+    #     gallery_labels = torch.tensor(gallery_labels, device=feature_vectors.device)
+    # idx = dist_matrix.topk(k=rank[-1], dim=-1, largest=False)[1]
+    
+    # faiss 적용
+    temp_vectors = feature_vectors.cpu().numpy()
+    Index = faiss.IndexFlatL2(1536)
+    Index.add(temp_vectors)
+    _, indexes = Index.search(temp_vectors, rank[-1] + 1)
+    gallery_labels = feature_labels
+    idx = torch.from_numpy(indexes[:, 1:])
+    
     acc_list = []
     for r in rank:
         correct = (gallery_labels[idx[:, 0:r]] == feature_labels.unsqueeze(dim=-1)).any(dim=-1).float()

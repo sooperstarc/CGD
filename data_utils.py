@@ -101,8 +101,8 @@ def process_custom_data(data_path):
     if not os.path.exists('{}/uncropped'.format(data_path)):
         os.mkdir('{}/uncropped'.format(data_path))
     train_images, test_images = {}, {}
-    # data_tuple = {'train': train_images, 'test': test_images}
-    data_tuple = {'test': test_images}
+    data_tuple = {'train': train_images, 'test': test_images}
+    # data_tuple = {'test': test_images}
     for data_type, image_list in data_tuple.items():
         for index, line in enumerate(open('{}/{}.txt'.format(data_path, data_type), 'r', encoding='utf-8')):
             if index != 0:
@@ -114,8 +114,8 @@ def process_custom_data(data_path):
                     image_list[label].append(save_name)
                 else:
                     image_list[label] = [save_name]
-    # torch.save({'train': train_images, 'test': test_images}, '{}/uncropped_data_dicts.pth'.format(data_path))
-    torch.save({'test': test_images}, '{}/uncropped_data_dicts.pth'.format(data_path))
+    torch.save({'train': train_images, 'test': test_images}, '{}/uncropped_data_dicts.pth'.format(data_path))
+    # torch.save({'test': test_images}, '{}/uncropped_data_dicts.pth'.format(data_path))
 
 # def process_isc_data(data_path):
 #     if not os.path.exists('{}/uncropped'.format(data_path)):
@@ -157,9 +157,9 @@ if __name__ == '__main__':
     # process_car_data('{}/car'.format(opt.data_path), 'cropped')
     # process_cub_data('{}/cub'.format(opt.data_path), 'uncropped')
     # process_cub_data('{}/cub'.format(opt.data_path), 'cropped')
-    print('processing sop dataset')
-    process_sop_data('{}/sop'.format(opt.data_path))
+    # print('processing sop dataset')
+    # process_sop_data('{}/sop'.format(opt.data_path))
     # print('processing isc dataset')
     # process_isc_data('{}/isc'.format(opt.data_path))
-    # print('processing custom dataset')
-    # process_custom_data('{}/custom'.format(opt.data_path))
+    print('processing custom dataset')
+    process_custom_data('{}/custom'.format(opt.data_path))
