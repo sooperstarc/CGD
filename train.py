@@ -121,7 +121,13 @@ if __name__ == '__main__':
         eval_dict['gallery'] = {'data_loader': gallery_data_loader}
 
     # model setup, model profile, optimizer config and loss definition
-    model = Model(backbone_type, gd_config, feature_dim, num_classes=len(train_data_set.class_to_idx)).cuda()
+    # model = Model(backbone_type, gd_config, feature_dim, num_classes=len(train_data_set.class_to_idx)).cuda()
+
+    # pretrained model load
+    model = Model(backbone_type, gd_config, feature_dim, num_classes=11318).cuda()
+    pretrained_model_path = 'results/sop_uncropped_resnet50_SG_1536_0.1_0.5_0.1_128_model.pth'
+    model.load_state_dict(torch.load(pretrained_model_path))
+
     flops, params = profile(model, inputs=(torch.randn(1, 3, 224, 224).cuda(),))
     flops, params = clever_format([flops, params])
     print('# Model Params: {} FLOPs: {}'.format(params, flops))
