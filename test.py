@@ -50,8 +50,8 @@ if __name__ == '__main__':
         retrieval_status = (retrieval_label == query_label).item()
         retrieval_dist = dist_matrix[index.item()].item()
         if retrieval_status:
-            draw.rectangle((0, 0, 223, 223), outline='green', width=8)
+            draw.rectangle((0, 0, 223, 223), outline='green', width=12)
         else:
-            draw.rectangle((0, 0, 223, 223), outline='red', width=8)
+            draw.rectangle((0, 0, 223, 223), outline='red', width=12)
         retrieval_image.save('{}/retrieval_img_{}_{}.jpg'.format(result_path, num + 1, '%.4f' % retrieval_dist))
         print("{} \t {} \t {}".format(num + 1, gallery_images[index.item()], '%.4f' % retrieval_dist))
