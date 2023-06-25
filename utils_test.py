@@ -6,6 +6,7 @@ from torch.nn import functional as F
 from torch.utils.data import Dataset
 from torch.utils.data.sampler import Sampler
 from torchvision import transforms
+import faiss
 
 
 class ImageReader(Dataset):
@@ -42,19 +43,60 @@ def recall(feature_vectors, feature_labels, rank, gallery_vectors=None, gallery_
     feature_labels = torch.tensor(feature_labels, device=feature_vectors.device)
     gallery_vectors = feature_vectors if gallery_vectors is None else gallery_vectors
 
-    dist_matrix = torch.cdist(feature_vectors.unsqueeze(0), gallery_vectors.unsqueeze(0)).squeeze(0)
-    if gallery_labels is None:
-        dist_matrix.fill_diagonal_(float('inf'))
-        gallery_labels = feature_labels
-    else:
-        gallery_labels = torch.tensor(gallery_labels, device=feature_vectors.device)
-    idx = dist_matrix.topk(k=rank[-1], dim=-1, largest=False)[1]
+    # faiss 적용
+    temp_vectors = feature_vectors.cpu().numpy()
+    Index = faiss.IndexFlatL2(1536)
+    Index.add(temp_vectors)
+    _, indexes = Index.search(temp_vectors, rank[-1] + 1)
+    gallery_labels = feature_labels
+    idx = torch.from_numpy(indexes[:, 1:])
     
     acc_list = []
     for r in rank:
         correct = (gallery_labels[idx[:, 0:r]] == feature_labels.unsqueeze(dim=-1)).any(dim=-1).float()
         acc_list.append((torch.sum(correct) / num_features).item())
     return acc_list
+
+
+def custom_precision_top_k(feature_vectors, feature_labels, rank):
+    """
+    precision@k 계산 방법을 수정한 함수
+
+    r: query image 와 같은 클래스의 이미지 갯수 
+    k: k 
+
+    precision@k = 검색 결과 중 query image 와 같은 클래스의 이미지 갯수 / min(r, k)
+
+    retrun precision@k
+    """
+    maxk = max(rank)
+    feature_labels = torch.tensor(feature_labels, device=feature_vectors.device)
+
+    temp_vectors = feature_vectors.cpu().numpy()
+    Index = faiss.IndexFlatL2(1536)
+    Index.add(temp_vectors)
+    _, indexes = Index.search(temp_vectors, maxk + 1)
+    idx = torch.from_numpy(indexes[:, 1:])
+
+    # relevant image count by class
+    bins_by_class = torch.bincount(feature_labels.view(-1))
+    # relevant image count by query
+    bins_by_query = bins_by_class[feature_labels.view(-1)]
+
+    output = feature_labels[idx[:, 0:maxk]]
+    correct = output.eq(feature_labels.view(-1, 1).expand_as(output))
+
+    res = []
+    for k in rank:
+        correct_k = correct[:, :k].float().sum(1)
+
+        dummy = torch.tensor([k] * bins_by_query.size()[0], device=output.device)
+        min_elements = torch.minimum(bins_by_query, dummy)
+
+        custom_precision = correct_k / min_elements
+        res.append(torch.mean(custom_precision).item())
+
+    return res
 
 
 class LabelSmoothingCrossEntropyLoss(nn.Module):
